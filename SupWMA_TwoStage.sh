@@ -9,4 +9,9 @@ export LD_LIBRARY_PATH=/home/victor/alarge/Softwares/Slicer-4.10.2-linux-amd64/l
 export LD_LIBRARY_PATH=/home/victor/alarge/Softwares/Slicer-4.10.2-linux-amd64/lib/Slicer-4.10/:$LD_LIBRARY_PATH
 
 # Trained model path
-model_folder=./TrainedModel_Tw
+model_folder=./TrainedModel_TwoStage/
+# Test data paths
+subject_ID=101006
+ukf_name=${subject_ID}_ukf_pp_with_region.vtp
+subject_ukf=./TestData/${subject_ID}
+# Registeration data path
