@@ -14,4 +14,8 @@ model_folder=./TrainedModel_TwoStage/
 subject_ID=101006
 ukf_name=${subject_ID}_ukf_pp_with_region.vtp
 subject_ukf=./TestData/${subject_ID}
-# Registeration data path
+# Registeration data paths
+atlas_T2=./TestData/100HCP-population-mean-T2.nii.gz
+baseline_b0=./TestData/${subject_ID}/${subject_ID}-dwi_meanb0.nrrd
+# Output data paths
+out
