@@ -18,4 +18,8 @@ subject_ukf=./TestData/${subject_ID}
 atlas_T2=./TestData/100HCP-population-mean-T2.nii.gz
 baseline_b0=./TestData/${subject_ID}/${subject_ID}-dwi_meanb0.nrrd
 # Output data paths
-out
+output_folder=./SupWMA-TwoStage_parcellation_results/${subject_ID}
+mkdir $output_folder
+
+echo "======*=========*========*======="
+# Tractography regi
