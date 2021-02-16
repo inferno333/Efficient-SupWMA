@@ -22,4 +22,6 @@ output_folder=./SupWMA-TwoStage_parcellation_results/${subject_ID}
 mkdir $output_folder
 
 echo "======*=========*========*======="
-# Tractography regi
+# Tractography registration
+subject_transform=./TestData/${subject_ID}_b0_to_atlasT2.tfm
+$BRAINSFitCLI --fixedVolume $atlas_T2 --movingVolume $baseline_b0 --linearTransform ${subje
