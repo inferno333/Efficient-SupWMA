@@ -24,4 +24,7 @@ mkdir $output_folder
 echo "======*=========*========*======="
 # Tractography registration
 subject_transform=./TestData/${subject_ID}_b0_to_atlasT2.tfm
-$BRAINSFitCLI --fixedVolume $atlas_T2 --movingVolume $baseline_b0 --linearTransform ${subje
+$BRAINSFitCLI --fixedVolume $atlas_T2 --movingVolume $baseline_b0 --linearTransform ${subject_transform} --useRigid --useAffine
+wm_harden_transform.py ${subject_ukf} $output_folder $Slicer -t ${subject_transform} -j 1
+# RAS feature extraction
+python ./extr
