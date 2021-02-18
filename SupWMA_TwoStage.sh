@@ -27,4 +27,6 @@ subject_transform=./TestData/${subject_ID}_b0_to_atlasT2.tfm
 $BRAINSFitCLI --fixedVolume $atlas_T2 --movingVolume $baseline_b0 --linearTransform ${subject_transform} --useRigid --useAffine
 wm_harden_transform.py ${subject_ukf} $output_folder $Slicer -t ${subject_transform} -j 1
 # RAS feature extraction
-python ./extr
+python ./extract_tract_feat.py ${output_folder}/${ukf_name} $output_folder -outPrefix ${subject_ID} -feature RAS -numPoints 15
+# SWM parcellation
+python ./test_TwoStag
