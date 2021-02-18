@@ -29,4 +29,4 @@ wm_harden_transform.py ${subject_ukf} $output_folder $Slicer -t ${subject_transf
 # RAS feature extraction
 python ./extract_tract_feat.py ${output_folder}/${ukf_name} $output_folder -outPrefix ${subject_ID} -feature RAS -numPoints 15
 # SWM parcellation
-python ./test_TwoStag
+python ./test_TwoStage.py --weight_path ${model_folder} --feat_path $output_folder/${subject_ID}_featMatrix.h5 --out_path $output_folder --label_names ${mod
