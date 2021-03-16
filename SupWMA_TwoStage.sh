@@ -31,4 +31,6 @@ python ./extract_tract_feat.py ${output_folder}/${ukf_name} $output_folder -outP
 # SWM parcellation
 python ./test_TwoStage.py --weight_path ${model_folder} --feat_path $output_folder/${subject_ID}_featMatrix.h5 --out_path $output_folder --label_names ${model_folder}/label_names.h5 --out_prefix ${subject_ID} --tractography_path ${subject_ukf}/${ukf_name}
 # Clean temp files
-rm -r ${output_folder}/${subject_ID}_feat
+rm -r ${output_folder}/${subject_ID}_featMatrix.h5 ${output_folder}/${ukf_name}
+
+
