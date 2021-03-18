@@ -113,3 +113,54 @@ def contrastive_two_stage_eval_net(stage1_params, encoder_params, args, stage1_n
 
 
 def kfold_evaluate_two_stage_contrastive_model(stage1_params, encoder_params, args, device, script_name):
+    log_res_path_base = os.path.join(args.out_path_base, args.stage1_weight_path_base.split('/')[-1])
+    fold_lst = encoder_params['fold_lst']
+    total_prediction_time = 0
+    for num_fold in fold_lst:
+        num_fold = num_fold + 1
+        log_res_path = os.path.join(log_res_path_base, str(num_fold))
+        args.out_path = os.path.join(args.out_path_base, str(num_fold))
+        # Record the training process and values
+        makepath(log_res_path)
+        # Record the training process and values
+        logger = create_logger(log_res_path, 'evaluate_on_entire_data')
+        logger.info('=' * 55)
+        logger.info(args)
+        logger.info('=' * 55)
+        
+        # load test data
+        test_data_loader, label_names, num_class = load_test_data(args, logger, num_fold)
+
+        # load model
+        # model setting
+        stage1_model = PointNetCls(k=stage1_params['stage1_num_class']).to(device)
+        stage2_encoder = PointNet_SupCon(head=encoder_params['head_name'], feat_dim=encoder_params['encoder_feat_num']).to(device)
+        stage2_classifer = PointNet_Classifier(num_classes=encoder_params['stage2_num_class']).to(device)
+
+        # load weights
+        if args.stage1_weight_path_base == '':
+            raise NotImplementedError('The stage1 weight is required')
+        else:
+            stage1_weight_path = os.path.join(args.stage1_weight_path_base, str(num_fold), 'best_{}_model.pth'.format(args.best_metric))
+            stage1_model.load_state_dict(torch.load(stage1_weight_path))
+            encoder_weight_path_base = os.path.join(*args.out_path_base.split('/')[:-1])
+            encoder_weight_path = os.path.join(encoder_weight_path_base, str(num_fold), 'epoch_{}_model.pth'.format(args.supcon_epoch))
+            stage2_encoder.load_state_dict(torch.load(encoder_weight_path))
+            classifier_weight_path = os.path.join(args.out_path, 'best_{}_model.pth'.format(args.best_metric))
+            stage2_classifer.load_state_dict(torch.load(classifier_weight_path))
+
+        # evaluation        
+        prediction_time = contrastive_two_stage_eval_net(stage1_params, encoder_params, args, stage1_model, stage2_encoder, stage2_classifer,
+                                        test_data_loader, label_names, script_name, logger, log_res_path, device)
+        total_prediction_time += prediction_time
+    
+    # clean the logger
+    logger.handlers.clear()
+
+    if len(fold_lst) == 5:
+        # calculate the average performance
+        stage1_path = args.stage1_weight_path_base.split('/')[-1]
+        calculate_entire_data_average_metric(log_res_path_base, len(fold_lst), args.best_metric, stage1_path)
+        logger.info("The total prediction time for {} fold(s) is {} s".format(len(fold_lst), round(total_prediction_time,4)))
+
+
