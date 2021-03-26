@@ -10,4 +10,7 @@ import h5py
 
 def gen_features():
     print(script_name, 'Computing feauture:', args.feature)
-    if args.f
+    if args.feature == 'RAS':
+        feat_RAS = tract_feat.feat_RAS(pd_tract, number_of_points=args.numPoints)
+
+        # Reshape from 3D (num of fibers, num of point
