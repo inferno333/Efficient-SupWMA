@@ -22,4 +22,8 @@ def gen_features():
 
         feat_RAS_3D = tract_feat.feat_RAS_3D(pd_tract, number_of_points=args.numPoints, repeat_time=args.numRepeats)
 
-        
+        feat = feat_RAS_3D
+
+    elif args.feature == 'RASCurvTors':
+
+        feat_curv_tors = tract_feat.feat_RAS_curv_tors(pd_tract
