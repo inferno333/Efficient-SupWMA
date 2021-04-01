@@ -18,4 +18,8 @@ def gen_features():
         feat_shape = np.append(feat_RAS.shape, 1)
         feat = np.reshape(feat_RAS, feat_shape)
 
-    elif args.feature == 'RAS-3D
+    elif args.feature == 'RAS-3D':
+
+        feat_RAS_3D = tract_feat.feat_RAS_3D(pd_tract, number_of_points=args.numPoints, repeat_time=args.numRepeats)
+
+        
