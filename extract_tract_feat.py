@@ -34,4 +34,11 @@ def gen_features():
 
     elif args.feature == 'CurvTors':
 
-        feat_curv_tors = tract_feat.feat_curv_tors(pd_tract, number_of_points=args.numPo
+        feat_curv_tors = tract_feat.feat_curv_tors(pd_tract, number_of_points=args.numPoints)
+
+        feat_shape = np.append(feat_curv_tors.shape, 1)
+
+        feat = np.reshape(feat_curv_tors, feat_shape)
+
+    else:
+        raise ValueError
