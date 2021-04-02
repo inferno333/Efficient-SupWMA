@@ -49,3 +49,7 @@ def gen_features():
 
 
 if __name__ == "__main__":
+    # -----------------
+    # Parse arguments
+    # -----------------
+    parser = argparse.ArgumentParser(description="Compute FiberMap of input vtk file.",
