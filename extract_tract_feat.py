@@ -41,4 +41,11 @@ def gen_features():
         feat = np.reshape(feat_curv_tors, feat_shape)
 
     else:
-        raise ValueError
+        raise ValueError('Please enter valid feature names.')
+
+    print(script_name, 'Feature matrix shape:', feat.shape)
+
+    return feat
+
+
+if __name__ == "__main__":
