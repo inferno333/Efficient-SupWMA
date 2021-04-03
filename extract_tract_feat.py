@@ -53,3 +53,6 @@ if __name__ == "__main__":
     # Parse arguments
     # -----------------
     parser = argparse.ArgumentParser(description="Compute FiberMap of input vtk file.",
+                                     epilog="Written by Tengfei Xue, Fan Zhang, txue3@bwh.harvard.edu, fzhang@bwh.harvard.edu")
+
+    parser.add_argument('in
