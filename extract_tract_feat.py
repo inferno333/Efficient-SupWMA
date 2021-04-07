@@ -55,4 +55,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compute FiberMap of input vtk file.",
                                      epilog="Written by Tengfei Xue, Fan Zhang, txue3@bwh.harvard.edu, fzhang@bwh.harvard.edu")
 
-    parser.add_argument('in
+    parser.add_argument('inputVTK', help='input tractography data as vtkPolyData file(s).')
+    parser.add_argument('outputDir', help='The output directory should be a new em
