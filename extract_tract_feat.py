@@ -61,4 +61,9 @@ if __name__ == "__main__":
 
     parser.add_argument('-feature', action="store", type=str, help="Name of feature`")   # RAS: Right-Anterior-Superior
     parser.add_argument('-numPoints', action="store", type=int, default=15, help='Number of points per fiber to extract feature.')
-    parser.add_argument('-numRepeats', action="store", ty
+    parser.add_argument('-numRepeats', action="store", type=int, default=15, help='Number of repiteation times.')
+
+    args = parser.parse_args()
+    script_name = '<extract_tract_feat>'
+
+    if not os.path
