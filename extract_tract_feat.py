@@ -56,4 +56,7 @@ if __name__ == "__main__":
                                      epilog="Written by Tengfei Xue, Fan Zhang, txue3@bwh.harvard.edu, fzhang@bwh.harvard.edu")
 
     parser.add_argument('inputVTK', help='input tractography data as vtkPolyData file(s).')
-    parser.add_argument('outputDir', help='The output directory should be a new em
+    parser.add_argument('outputDir', help='The output directory should be a new empty directory. It will be created if needed.')
+    parser.add_argument('-outPrefix', type=str, help='A prefix string of all output files.')
+
+    parser.
