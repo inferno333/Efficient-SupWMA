@@ -59,4 +59,5 @@ if __name__ == "__main__":
     parser.add_argument('outputDir', help='The output directory should be a new empty directory. It will be created if needed.')
     parser.add_argument('-outPrefix', type=str, help='A prefix string of all output files.')
 
-    parser.
+    parser.add_argument('-feature', action="store", type=str, help="Name of feature`")   # RAS: Right-Anterior-Superior
+    parser.add_argument('-numPoints', action="store
