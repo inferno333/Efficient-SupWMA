@@ -70,4 +70,6 @@ if __name__ == "__main__":
         print(script_name, "Error: Input tractography ", args.inputVTK, "does not exist.")
         exit()
 
-    if not os.path.
+    if not os.path.exists(args.outputDir):
+        print(script_name, "Output directory", args.outputDir, "does not exist, creating it.")
+        os.makedirs(args.ou
