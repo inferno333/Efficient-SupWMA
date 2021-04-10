@@ -72,4 +72,9 @@ if __name__ == "__main__":
 
     if not os.path.exists(args.outputDir):
         print(script_name, "Output directory", args.outputDir, "does not exist, creating it.")
-        os.makedirs(args.ou
+        os.makedirs(args.outputDir)
+
+    print(script_name, 'Reading input tractography:', args.inputVTK)
+    pd_tract = wma.io.read_polydata(args.inputVTK)
+
+    # generate fea
