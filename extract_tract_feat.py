@@ -66,4 +66,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     script_name = '<extract_tract_feat>'
 
-    if not os.path
+    if not os.path.exists(args.inputVTK):
+        print(script_name, "Error: Input tractography ", args.inputVTK, "does not exist.")
+        exit()
+
+    if not os.path.
