@@ -77,4 +77,9 @@ if __name__ == "__main__":
     print(script_name, 'Reading input tractography:', args.inputVTK)
     pd_tract = wma.io.read_polydata(args.inputVTK)
 
-    # generate fea
+    # generate features
+    feat = gen_features()
+
+    # Save feat
+    with h5py.File(os.path.join(args.outputDir, args.outPrefix + '_featMatrix.h5'), "w") as f:
+   
