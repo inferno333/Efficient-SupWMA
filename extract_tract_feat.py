@@ -82,4 +82,6 @@ if __name__ == "__main__":
 
     # Save feat
     with h5py.File(os.path.join(args.outputDir, args.outPrefix + '_featMatrix.h5'), "w") as f:
-   
+        f.create_dataset('feat', data=feat)
+
+        print(script_name, 'Feature matrix shape:', feat.shape)
