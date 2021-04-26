@@ -152,3 +152,68 @@ def tractography_parcellation():
 
         if not os.path.exists(output_cluster_folder):
             os.makedirs(output_cluster_folder)
+
+        for t_idx in range(len(pd_t_list)):
+            pd_t = pd_t_list[t_idx]
+
+            if label_names is not None:
+                fname_t = os.path.join(output_cluster_folder, label_names[t_idx] + '.vtp')
+            else:
+                fname_t = os.path.join(output_cluster_folder, 'cluster_' + str(t_idx) + '.vtp')
+
+            print(script_name, 'output', fname_t)
+            wma.io.write_polydata(pd_t, fname_t)
+
+        print(script_name, 'Done! Clusters are in:', output_cluster_folder)
+
+    return output_cluster_folder
+
+
+if __name__ == "__main__":
+    use_cpu = False
+    if use_cpu:
+        device = torch.device("cpu")
+    else:
+        device = torch.device("cuda:0")
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Testing on real data using Two-stage SupWMA",
+                                     epilog="by Tengfei Xue txue4133@uni.sydney.edu.au")
+    parser.add_argument('--weight_path', type=str, help='pretrained network model')
+    parser.add_argument('--feat_path', type=str, help='Input cluster feature data as an h5 file.')
+    parser.add_argument('--out_path', type=str, help='The output directory should be a new empty directory. It will be created if needed.')
+    parser.add_argument('--label_names', type=str, help='label names in the trained model as an h5 file.')
+    parser.add_argument('--input_label_path', type=str, help='Input ground truth label as an h5 file.')
+    parser.add_argument('--out_prefix', type=str, help='A prefix string of all output files.')
+    parser.add_argument('--tractography_path', type=str, help='Tractography data as a vtkPolyData file. If given, prediction will output clusters')
+
+    parser.add_argument('--num_workers', type=int, help='number of data loading workers', default=4)
+    parser.add_argument('--test_batch_size', type=int, default=6144, help='batch size')
+
+    parser.add_argument('--best_metric', type=str, default='f1', help='evaluation metric')
+    parser.add_argument('--supcon_epoch', type=int, default=100, help='The epoch of encoder model')
+
+    args = parser.parse_args()
+    script_name = '<test-TwoStage>'
+
+    logger = create_logger(args.out_path)
+
+    if not os.path.exists(args.out_path):
+        print(script_name, "Output directory", args.out_path, "does not exist, creating it.")
+        os.makedirs(args.out_path)
+
+    with open(os.path.join(args.weight_path, 's1_cls', 'stage1_params.pickle'), 'rb') as f:
+        stage1_params = pickle.load(f)
+        f.close()
+    with open(os.path.join(args.weight_path, 's2_encoder', 'encoder_params.pickle'), 'rb') as f:
+        encoder_params = pickle.load(f)
+        f.close()
+
+    # load test data
+    test_data_loader, label_names, num_class = load_test_data()
+
+    # generate prediction
+    predicted_arr = test_net()
+
+    # Process tractography parcellation
+    out_clusters_folder = tractography_parcellation()
