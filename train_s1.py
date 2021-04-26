@@ -223,3 +223,76 @@ if __name__ == '__main__':
     parser.add_argument('--T_0', type=int, default=10, help='Number of iterations for the first restart (for wucd)')
     parser.add_argument('--T_mult', type=int, default=2, help='A factor increases Ti after a restart (for wucd)')
     parser.add_argument('--train_batch_size', type=int, default=128, help='batch size')
+    parser.add_argument('--val_batch_size', type=int, default=128, help='batch size')
+    parser.add_argument('--epoch', type=int, default=10, help='the number of epochs')
+    parser.add_argument('--best_metric', type=str, default='f1', help='evaluation metric')
+    parser.add_argument('--eval_fold_zero', default=False, action='store_true', help='eval on fold 0, train on fold 1 2 3 4')
+    parser.add_argument('--redistribute_class', default=False, action='store_true',
+                        help="redistribute classes to 199 classes when generate classification reports")
+
+    args = parser.parse_args()
+
+    args.manualSeed = 0  # fix seed
+    print("Random Seed: ", args.manualSeed)
+    fix_seed(args.manualSeed)
+
+    script_name = '<train_stage1>'
+
+    args.input_path = unify_path(args.input_path)
+    args.out_path_base = unify_path(args.out_path_base)
+
+    if args.eval_fold_zero:
+        fold_lst = [0]
+    else:
+        fold_lst = [i for i in range(args.k_fold)]
+
+    for num_fold in fold_lst:
+        num_fold = num_fold + 1
+        args.out_path = os.path.join(args.out_path_base, str(num_fold))
+        makepath(args.out_path)
+
+        # Record the training process and values
+        logger = create_logger(args.out_path)
+        logger.info('=' * 55)
+        logger.info(args)
+        logger.info('=' * 55)
+        logger.info('Implement {} fold experiment'.format(num_fold))
+        # load data
+        train_loader, val_loader, label_names, \
+        num_classes, train_data_size, val_data_size = load_data()
+
+        # model setting
+        classifier = PointNetCls(k=num_classes)  # Remove transformation nets
+
+        # optimizers
+        if args.opt == 'Adam':
+            optimizer = optim.Adam(classifier.parameters(), lr=args.lr, betas=(0.9, 0.999), weight_decay=args.weight_decay)
+        elif args.opt == 'SGD':
+            optimizer = optim.SGD(classifier.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+        else:
+            raise ValueError('Please input valid optimizers Adam | SGD')
+        # schedulers
+        if args.scheduler == 'step':
+            scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.decay_factor)
+        elif args.scheduler == 'wucd':
+            scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=args.T_0, T_mult=args.T_mult)
+        else:
+            raise ValueError('Please input valid schedulers step | wucd')
+
+        classifier.to(device)
+        # train and eval net
+        train_val_net(classifier)
+
+    # clean the logger
+    logger.handlers.clear()
+
+    # Generate .pickle file of stage 1 parameters
+    num_swm_stage1 = len([name.decode() for name in label_names if 'swm' in name.decode()])
+    stage1_params_dict = {'stage1_num_class': num_classes, 'num_swm_stage1': num_swm_stage1, 'fold_lst': fold_lst}
+    with open(os.path.join(args.out_path_base, 'stage1_params.pickle'), 'wb') as f:
+        pickle.dump(stage1_params_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+        f.close()
+    
+    # average metric
+    num_files = len(fold_lst)
+    calculate_average_metric(args.out_path_base, num_files, args.best_metric, args.redistribute_class)
