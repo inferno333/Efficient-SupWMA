@@ -164,3 +164,55 @@ if __name__ == '__main__':
     script_name = '<train_stage2_encoder>'
 
     args.input_path = unify_path(args.input_path)
+    args.out_path_base = unify_path(args.out_path_base)
+
+    if args.eval_fold_zero:
+        fold_lst = [0]
+    else:
+        fold_lst = [i for i in range(args.k_fold)]
+    for num_fold in fold_lst:
+        num_fold = num_fold + 1
+        args.out_path = os.path.join(args.out_path_base, str(num_fold))
+        makepath(args.out_path)
+
+        # Record the training process and values
+        logger = create_logger(args.out_path)
+        logger.info('=' * 55)
+        logger.info(args)
+        logger.info('=' * 55)
+        logger.info('Implement {} fold experiment'.format(num_fold))
+        # load data
+        train_loader, label_names, num_classes, train_data_size = load_data()
+
+        # model setting
+        supcon_model = PointNet_SupCon(head=args.head_name, feat_dim=args.encoder_feat_num)
+
+        # optimizers
+        if args.opt == 'Adam':
+            optimizer = optim.Adam(supcon_model.parameters(), lr=args.lr, betas=(0.9, 0.999), weight_decay=args.weight_decay)
+        elif args.opt == 'SGD':
+            optimizer = optim.SGD(supcon_model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+        else:
+            raise ValueError('Please input valid optimizers Adam | SGD')
+        # schedulers
+        if args.scheduler == 'step':
+            scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.decay_factor)
+        elif args.scheduler == 'wucd':
+            scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=args.T_0, T_mult=args.T_mult)
+        else:
+            raise ValueError('Please input valid schedulers step | wucd')
+
+        # loss
+        criterion = SupConLoss(temperature=args.temperature)
+        supcon_model.to(device)
+
+        # train and eval net
+        train_val_net(supcon_model)
+
+    # Generate .pickle file of encoder parameters
+    encoder_params_dict = {'contrastive_method': args.contrastive_method, 'head_name': args.head_name, 'encoder_feat_num': args.encoder_feat_num,
+                           'temperature': args.temperature, 'fold_lst': fold_lst, 'stage2_num_class': num_classes}
+
+    with open(os.path.join(args.out_path_base, 'encoder_params.pickle'), 'wb') as f:
+        pickle.dump(encoder_params_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+        f.close()
