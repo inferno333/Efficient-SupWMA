@@ -9,4 +9,7 @@ class SupConLoss(nn.Module):
     It also supports the unsupervised contrastive loss in SimCLR"""
     def __init__(self, temperature=0.07, base_temperature=0.07):
         super(SupConLoss, self).__init__()
-        self.temperature = te
+        self.temperature = temperature
+        self.base_temperature = base_temperature   # Control the loss scalar, does not influence training
+
+    def forward(self, featu
