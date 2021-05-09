@@ -12,4 +12,6 @@ class SupConLoss(nn.Module):
         self.temperature = temperature
         self.base_temperature = base_temperature   # Control the loss scalar, does not influence training
 
-    def forward(self, featu
+    def forward(self, features, labels=None, mask=None):
+        """Compute loss for model. If both `labels` and `mask` are None,
+        it degenerates to SimCLR unsu
