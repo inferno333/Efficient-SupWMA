@@ -29,4 +29,7 @@ class SupConLoss(nn.Module):
         if len(features.shape) > 3:
             features = features.view(features.shape[0], features.shape[1], -1)
 
-        ba
+        batch_size = features.shape[0]
+
+        if labels is not None and mask is not None:
+            raise ValueError('Cannot define both `labels` and `m
