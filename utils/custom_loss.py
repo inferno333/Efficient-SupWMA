@@ -20,4 +20,8 @@ class SupConLoss(nn.Module):
             features: hidden vector of shape [bsz, n_views, ...].
             labels: ground truth of shape [bsz].
             mask: contrastive mask of shape [bsz, bsz], mask_{i,j}=1 if sample j
-                has the same class as sample i. Can be asymmetri
+                has the same class as sample i. Can be asymmetric.
+        Returns:
+            A loss scalar.
+        """
+        device = (torch.device('cuda') if features.is_cuda else 
