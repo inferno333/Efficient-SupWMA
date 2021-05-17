@@ -18,4 +18,6 @@ class SupConLoss(nn.Module):
 
         Args:
             features: hidden vector of shape [bsz, n_views, ...].
-            labels: ground truth of shape 
+            labels: ground truth of shape [bsz].
+            mask: contrastive mask of shape [bsz, bsz], mask_{i,j}=1 if sample j
+                has the same class as sample i. Can be asymmetri
