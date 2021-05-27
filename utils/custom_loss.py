@@ -38,4 +38,7 @@ class SupConLoss(nn.Module):
         elif labels is not None:
             labels = labels.contiguous().view(-1, 1)
             if labels.shape[0] != batch_size:
-                raise Valu
+                raise ValueError('Num of labels does not match num of features')
+            mask = torch.eq(labels, labels.T).float().to(device)
+        else:
+        
