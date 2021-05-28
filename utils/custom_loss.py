@@ -44,4 +44,10 @@ class SupConLoss(nn.Module):
             mask = mask.float().to(device)
 
         contrast_count = features.shape[1]
-        contrast_feature = torch.cat(torch.unbind(features, dim=1), 
+        contrast_feature = torch.cat(torch.unbind(features, dim=1), dim=0)
+
+        anchor_feature = contrast_feature
+        anchor_count = contrast_count
+
+        # compute logits
+        anchor_dot_contras
