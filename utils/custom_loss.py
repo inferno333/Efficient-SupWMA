@@ -57,4 +57,8 @@ class SupConLoss(nn.Module):
         logits = anchor_dot_contrast - logits_max.detach()
 
         # tile mask
-        mask = mask.rep
+        mask = mask.repeat(anchor_count, contrast_count)
+        # mask-out self-contrast cases
+        logits_mask = torch.scatter(
+            torch.ones_like(mask),
+   
