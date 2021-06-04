@@ -61,4 +61,9 @@ class SupConLoss(nn.Module):
         # mask-out self-contrast cases
         logits_mask = torch.scatter(
             torch.ones_like(mask),
-   
+            1,
+            torch.arange(batch_size * anchor_count).view(-1, 1).to(device),
+            0
+        )
+
+        # compu
