@@ -66,4 +66,7 @@ class SupConLoss(nn.Module):
             0
         )
 
-        # compu
+        # compute log_prob
+        exp_logits = torch.exp(logits) * logits_mask
+
+        log_prob = logits - torch.log(exp_logits.sum(1, keep
