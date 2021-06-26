@@ -200,3 +200,150 @@ class FiberArray:
         return fiber
 
     def get_equivalent_fiber(self, fiber_index):
+        """ Return equivalent version of fiber number
+        fiber_index. Return value is class Fiber. Gets the reverse
+        order of line (trajectory), as the fiber can be equivalently
+        represented in either order."""
+
+        fiber = self.get_fiber(fiber_index)
+
+        return fiber.get_equivalent_fiber()
+
+    def get_fibers(self, fiber_indices):
+        """ Return FiberArray containing subset of data corresponding
+        to fiber_indices"""
+
+        fibers = FiberArray()
+
+        fibers.number_of_fibers = len(fiber_indices)
+
+        # parameters
+        fibers.points_per_fiber = self.points_per_fiber
+        fibers.verbose = self.verbose
+
+        # fiber data
+        fibers.fiber_array_r = self.fiber_array_r[fiber_indices]
+        fibers.fiber_array_a = self.fiber_array_a[fiber_indices]
+        fibers.fiber_array_s = self.fiber_array_s[fiber_indices]
+
+        if self.fiber_hemisphere is not None:
+            # Output arrays indicating hemisphere/callosal (L,C,R= -1, 0, 1)
+            fibers.fiber_hemisphere = self.fiber_hemisphere[fiber_indices]
+
+            # DeepWMAOutput boolean arrays for each hemisphere and callosal fibers
+            fibers.is_left_hem = self.is_left_hem[fiber_indices]
+            fibers.is_right_hem = self.is_right_hem[fiber_indices]
+            fibers.is_commissure = self.is_commissure[fiber_indices]
+
+            # calculate indices of each type above
+            fibers.index_left_hem = numpy.nonzero(fibers.is_left_hem)[0]
+            fibers.index_right_hem = numpy.nonzero(fibers.is_right_hem)[0]
+            fibers.index_commissure = numpy.nonzero(fibers.is_commissure)[0]
+            fibers.index_hem = \
+                numpy.nonzero(fibers.is_left_hem | fibers.is_right_hem)[0]
+
+            # DeepWMAOutput totals of each type also
+            fibers.number_left_hem = len(fibers.index_left_hem)
+            fibers.number_right_hem = len(fibers.index_right_hem)
+            fibers.number_commissure = len(fibers.index_commissure)
+
+            # test
+            if __debug__:
+                test = fibers.number_of_fibers == \
+                       (fibers.number_left_hem + fibers.number_right_hem \
+                        + fibers.number_commissure)
+                if not test:
+                    print
+                    "<fibers.py> ERROR: fiber numbers don't add up."
+                    raise AssertionError
+
+        return fibers
+
+    def get_oriented_fibers(self, fiber_indices, order):
+        """Return FiberArray containing subset of data corresponding to
+        fiber_indices. Order fibers according to the array (where 0 is no
+        change, and 1 means to reverse the order and return the
+        equivalent fiber)
+        """
+
+        fibers = FiberArray()
+
+        fibers.number_of_fibers = len(fiber_indices)
+
+        # parameters
+        fibers.points_per_fiber = self.points_per_fiber
+        fibers.verbose = self.verbose
+
+        # fiber data
+        fibers.fiber_array_r = self.fiber_array_r[fiber_indices]
+        fibers.fiber_array_a = self.fiber_array_a[fiber_indices]
+        fibers.fiber_array_s = self.fiber_array_s[fiber_indices]
+
+        # swap orientation as requested
+        for (ord, fidx) in zip(order, range(fibers.number_of_fibers)):
+            if ord == 1:
+                f2 = fibers.get_equivalent_fiber(fidx)
+                # replace it in the array
+                fibers.fiber_array_r[fidx, :] = f2.r
+                fibers.fiber_array_a[fidx, :] = f2.a
+                fibers.fiber_array_s[fidx, :] = f2.s
+
+        if self.fiber_hemisphere is not None:
+            # Output arrays indicating hemisphere/callosal (L,C,R= -1, 0, 1)
+            fibers.fiber_hemisphere = self.fiber_hemisphere[fiber_indices]
+
+            # DeepWMAOutput boolean arrays for each hemisphere and callosal fibers
+            fibers.is_left_hem = self.is_left_hem[fiber_indices]
+            fibers.is_right_hem = self.is_right_hem[fiber_indices]
+            fibers.is_commissure = self.is_commissure[fiber_indices]
+
+            # calculate indices of each type above
+            fibers.index_left_hem = numpy.nonzero(fibers.is_left_hem)[0]
+            fibers.index_right_hem = numpy.nonzero(fibers.is_right_hem)[0]
+            fibers.index_commissure = numpy.nonzero(fibers.is_commissure)[0]
+            fibers.index_hem = \
+                numpy.nonzero(fibers.is_left_hem | fibers.is_right_hem)[0]
+
+            # DeepWMAOutput totals of each type also
+            fibers.number_left_hem = len(fibers.index_left_hem)
+            fibers.number_right_hem = len(fibers.index_right_hem)
+            fibers.number_commissure = len(fibers.index_commissure)
+
+            # test
+            if __debug__:
+                test = fibers.number_of_fibers == \
+                       (fibers.number_left_hem + fibers.number_right_hem \
+                        + fibers.number_commissure)
+                if not test:
+                    print
+                    "<fibers.py> ERROR: fiber numbers don't add up."
+                    raise AssertionError
+
+        return fibers
+
+    def convert_from_polydata(self, input_vtk_polydata, points_per_fiber=None):
+
+        """Convert input vtkPolyData to the fixed length fiber
+        representation of this class.
+        The polydata should contain the DeepWMAOutput of tractography.
+        The DeepWMAOutput is downsampled fibers in array format and
+        hemisphere info is also calculated.
+        """
+
+        # points used in discretization of each trajectory
+        if points_per_fiber is not None:
+            self.points_per_fiber = points_per_fiber
+
+        # line count. Assume all input lines are from tractography.
+        self.number_of_fibers = input_vtk_polydata.GetNumberOfLines()
+
+        if self.verbose:
+            print
+            "<fibers.py> Converting polydata to array representation. Lines:", \
+            self.number_of_fibers
+
+        # allocate array number of lines by line length
+        self.fiber_array_r = numpy.zeros((self.number_of_fibers,
+                                          self.points_per_fiber))
+        self.fiber_array_a = numpy.zeros((self.number_of_fibers,
+                                          self.points_per_fiber))
