@@ -54,3 +54,156 @@ def per_class_metric(labels_lst, predicted_lst, label_names, val_data_size, logg
     precision_lst = []
     recall_lst = []
     f1_lst = []
+    for key in cls_report_dict.keys():
+        if 'b' in key:
+            ratio = cls_report_dict[key]['support'] / float(val_data_size)
+            cls_report_dict[key]['ratio'] = ratio
+            ratio_lst.append(ratio)
+            precision_lst.append(cls_report_dict[key]['precision'])
+            recall_lst.append(cls_report_dict[key]['recall'])
+            f1_lst.append(cls_report_dict[key]['f1-score'])
+    np.save(os.path.join(out_path, 'cls_report_dict_best_{}.npy'.format(metric_name)), cls_report_dict)
+
+    # comparison figures
+    ratio_lst = [ratio * 100 for ratio in ratio_lst]
+    fig = plt.figure(figsize=(30, 10))
+    # precision vs ratio
+    ax1 = plt.subplot(1, 3, 1)
+    # recall vs ratio
+    plt.scatter(ratio_lst[:-1], precision_lst[:-1], color='r')
+    plt.xlabel('The amount ratio of streamlines (%)', fontsize=12)
+    plt.ylabel('Precision', fontsize=12)
+    plt.title('(No "other fiber") The relationship between precision and the amount of streamlines', fontsize=12)
+    fmt = '%.2f%%'  # ticks format, round to two decimal places
+    xticks = mtick.FormatStrFormatter(fmt)
+    ax1.xaxis.set_major_formatter(xticks)
+    plt.grid()
+
+    ax2 = plt.subplot(1, 3, 2)
+    plt.scatter(ratio_lst[:-1], recall_lst[:-1], color='b')
+    plt.xlabel('The amount ratio of streamlines (%)', fontsize=12)
+    plt.ylabel('Recall', fontsize=12)
+    plt.title('(No "other fiber") The relationship between recall and the amount of streamlines', fontsize=12)
+    fmt = '%.2f%%'  # ticks format, round to two decimal places
+    xticks = mtick.FormatStrFormatter(fmt)
+    ax2.xaxis.set_major_formatter(xticks)
+    plt.grid()
+    # f1-score vs ratio
+    ax3 = plt.subplot(1, 3, 3)
+    plt.scatter(ratio_lst[:-1], f1_lst[:-1], color='g')
+    plt.xlabel('The amount ratio of streamlines (%)', fontsize=12)
+    plt.ylabel('f1-score', fontsize=12)
+    plt.title('(No "other fiber") The relationship between f1-score and the amount of streamlines', fontsize=12)
+    fmt = '%.2f%%'  # ticks format, round to two decimal places
+    xticks = mtick.FormatStrFormatter(fmt)
+    ax3.xaxis.set_major_formatter(xticks)
+    plt.grid()
+    plt.savefig(os.path.join(out_path, 'metric_quantity_comparison_best_{}.png'.format(metric_name)))
+
+
+def process_curves(epoch, train_loss_lst, val_loss_lst, train_acc_lst, val_acc_lst,
+                    train_precision_lst, val_precision_lst, train_recall_lst, val_recall_lst,
+                    train_f1_lst, val_f1_lst, best_acc, best_acc_epoch, best_f1_mac, best_f1_epoch, out_path):
+    """Generate training curves"""
+    epoch_lst = range(1, epoch + 1)
+    fig, axes = plt.subplots(2, 3, figsize=(30, 20))
+    # loss
+    axes[0, 0].plot(epoch_lst, train_loss_lst, '-', color='r', label='train loss')
+    axes[0, 0].plot(epoch_lst, val_loss_lst, '-', color='b', label='val loss')
+    axes[0, 0].set_title('Loss Curve', fontsize=15)
+    axes[0, 0].set_xlabel('epochs', fontsize=12)
+    axes[0, 0].set_ylabel('loss', fontsize=12)
+    axes[0, 0].grid()
+    axes[0, 0].legend()
+    axes[0, 0].set_xticks(np.arange(1, len(epoch_lst) + 1, 5.0))
+
+    # accuracy
+    axes[0, 1].plot(epoch_lst, train_acc_lst, '-', color='r', label='train accuracy')
+    axes[0, 1].plot(epoch_lst, val_acc_lst, '-', color='b', label='val accuracy')
+    axes[0, 1].set_title('Accuracy Curve', fontsize=15)
+    axes[0, 1].set_xlabel('epochs', fontsize=12)
+    axes[0, 1].set_ylabel('accuracy', fontsize=12)
+    axes[0, 1].grid()
+    axes[0, 1].legend()
+    axes[0, 1].set_xticks(np.arange(1, len(epoch_lst) + 1, 5.0))
+
+    # macro precision
+    axes[0, 2].plot(epoch_lst, train_precision_lst, '-', color='r', label='train precision')
+    axes[0, 2].plot(epoch_lst, val_precision_lst, '-', color='b', label='val precision')
+    axes[0, 2].set_title('Precision (marco) Curve', fontsize=15)
+    axes[0, 2].set_xlabel('epochs', fontsize=12)
+    axes[0, 2].set_ylabel('precision', fontsize=12)
+    axes[0, 2].grid()
+    axes[0, 2].legend()
+    axes[0, 2].set_xticks(np.arange(1, len(epoch_lst) + 1, 5.0))
+
+    # macro recall
+    axes[1, 0].plot(epoch_lst, train_recall_lst, '-', color='r', label='train recall')
+    axes[1, 0].plot(epoch_lst, val_recall_lst, '-', color='b', label='val recall')
+    axes[1, 0].set_title('Recall (marco) Curve', fontsize=15)
+    axes[1, 0].set_xlabel('epochs', fontsize=12)
+    axes[1, 0].set_ylabel('recall', fontsize=12)
+    axes[1, 0].grid()
+    axes[1, 0].legend()
+    axes[1, 0].set_xticks(np.arange(1, len(epoch_lst) + 1, 5.0))
+
+    # macro f1
+    axes[1, 1].plot(epoch_lst, train_f1_lst, '-', color='r', label='train f1')
+    axes[1, 1].plot(epoch_lst, val_f1_lst, '-', color='b', label='val f1')
+    axes[1, 1].set_title('F1-score (marco) Curve', fontsize=15)
+    axes[1, 1].set_xlabel('epochs', fontsize=12)
+    axes[1, 1].set_ylabel('f1-score', fontsize=12)
+    axes[1, 1].grid()
+    axes[1, 1].legend()
+    axes[1, 1].set_xticks(np.arange(1, len(epoch_lst) + 1, 5.0))
+
+    # accuracy,  macro precision, macro recall, macro f1
+    axes[1, 2].plot(epoch_lst, val_acc_lst, '-', color='r', label='accuracy')
+    axes[1, 2].scatter(best_acc_epoch, best_acc, c='r', marker='8', label='best accuracy')
+    axes[1, 2].plot(epoch_lst, val_precision_lst, '-', color='g', label='precision (macro)')
+    axes[1, 2].plot(epoch_lst, val_recall_lst, '-', color='b', label='recall (macro)')
+    axes[1, 2].plot(epoch_lst, val_f1_lst, '-', color='y', label='f1 (macro)')
+    axes[1, 2].scatter(best_f1_epoch, best_f1_mac, c='y', marker='P', label='best f1 (macro)')
+    axes[1, 2].set_title('Metric Comparison Curve', fontsize=15)
+    axes[1, 2].set_xlabel('epochs', fontsize=12)
+    axes[1, 2].set_ylabel('metrics', fontsize=12)
+    axes[1, 2].grid()
+    axes[1, 2].legend()
+    axes[1, 2].set_xticks(np.arange(1, len(epoch_lst) + 1, 5.0))
+    plt.savefig(os.path.join(out_path, 'train_validation_process_analysis.png'))
+
+
+def best_swap(metric, epoch, net, labels_lst, predicted_lst):
+    best_metric = metric
+    best_epoch = epoch
+    best_wts = copy.deepcopy(net.state_dict())
+    best_labels_lst = labels_lst
+    best_pred_lst = predicted_lst
+    return best_metric, best_epoch, best_wts, best_labels_lst, best_pred_lst
+
+
+def save_best_weights(net, best_wts, out_path, metric_name, epoch, metric_value, logger):
+    net.load_state_dict(best_wts)
+    torch.save(net.state_dict(), '{}/best_{}_model.pth'.format(out_path, metric_name))
+    logger.info('The model with best {} is saved: epoch {}, {} {}'.format(metric_name, epoch, metric_name, metric_value))
+
+
+def _metric_across_clusters( cls_report_dict, label_names):
+    """Calculate mean and standard deviation for clusters of each fold"""
+    precision_across_clusters = np.zeros(len(label_names))
+    recall_across_clusters = np.zeros(len(label_names))
+    f1_across_clusters = np.zeros(len(label_names))
+    for idx_cluster, label in enumerate(label_names):
+        # If we wants to report percentage of variance, must multiply 100 here!
+        precision_across_clusters[idx_cluster] = cls_report_dict[label]['precision'] * 100
+        recall_across_clusters[idx_cluster] = cls_report_dict[label]['recall'] * 100
+        f1_across_clusters[idx_cluster] = cls_report_dict[label]['f1-score'] * 100
+    accuracy = cls_report_dict['accuracy'] * 100
+    macro_precision = np.mean(precision_across_clusters)
+    std_precision = np.std(precision_across_clusters)
+    macro_recall = np.mean(recall_across_clusters)
+    std_recall = np.std(recall_across_clusters)
+    macro_f1 = np.mean(f1_across_clusters)
+    std_f1 = np.std(f1_across_clusters)
+
+    return [accuracy, macro_precision, std_precision, macro_recall, std_recall, macro_f1, std_f1]
