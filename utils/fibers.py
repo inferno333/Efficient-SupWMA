@@ -639,3 +639,13 @@ class FiberArray:
                 idx = outpoints.InsertNextPoint(self.fiber_array_r[lidx, pidx],
                                                 self.fiber_array_a[lidx, pidx],
                                                 self.fiber_array_s[lidx, pidx])
+
+                cellptids.InsertNextId(idx)
+
+            outlines.InsertNextCell(cellptids)
+
+        # put data into DeepWMAOutput polydata
+        outpd.SetLines(outlines)
+        outpd.SetPoints(outpoints)
+
+        return outpd
