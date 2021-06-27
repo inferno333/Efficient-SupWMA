@@ -501,3 +501,141 @@ class FiberArray:
 
         self.fiber_array_cur = numpy.zeros((self.number_of_fibers,
                                             self.points_per_fiber))
+
+        self.fiber_array_tor = numpy.zeros((self.number_of_fibers,
+                                            self.points_per_fiber))
+
+        # loop over lines
+        input_vtk_polydata.GetLines().InitTraversal()
+        line_ptids = vtk.vtkIdList()
+        inpoints = input_vtk_polydata.GetPoints()
+
+        # Get data point
+        pointdata = input_vtk_polydata.GetPointData()
+
+        label_array_cur = None
+        array_name = 'curvature'
+        if pointdata.GetNumberOfArrays() > 0:
+            point_data_array_indices = range(pointdata.GetNumberOfArrays())
+            for idx in point_data_array_indices:
+                array = pointdata.GetArray(idx)
+                if array.GetName().find(array_name) != -1:
+                    label_array_cur = array
+
+        if label_array_cur is None:
+            print(array_name, 'is not found.')
+            return None
+
+        label_array_tor = None
+        array_name = 'torsion'
+        if pointdata.GetNumberOfArrays() > 0:
+            point_data_array_indices = range(pointdata.GetNumberOfArrays())
+            for idx in point_data_array_indices:
+                array = pointdata.GetArray(idx)
+                if array.GetName().find(array_name) != -1:
+                    label_array_tor = array
+
+        if label_array_tor is None:
+            print(array_name, 'is not found.')
+            return None
+
+        for lidx in range(0, self.number_of_fibers):
+
+            input_vtk_polydata.GetLines().GetNextCell(line_ptids)
+            line_length = line_ptids.GetNumberOfIds()
+
+            if self.verbose:
+                if lidx % 100 == 0:
+                    print
+                    ("<fibers.py> Line:", lidx, "/", self.number_of_fibers)
+                    print
+                    ("<fibers.py> number of points:", line_length)
+
+            # loop over the indices that we want and get those points
+            pidx = 0
+            for line_index in self._calculate_line_indices(line_length,
+                                                           self.points_per_fiber):
+                # do nearest neighbor interpolation: round index
+                ptidx = line_ptids.GetId(int(round(line_index)))
+
+                point = inpoints.GetPoint(ptidx)
+
+                self.fiber_array_r[lidx, pidx] = point[0]
+                self.fiber_array_a[lidx, pidx] = point[1]
+                self.fiber_array_s[lidx, pidx] = point[2]
+
+                self.fiber_array_cur[lidx, pidx] = label_array_cur.GetTuple(ptidx)[0]
+
+                self.fiber_array_tor[lidx, pidx] = label_array_tor.GetTuple(ptidx)[0]
+
+                pidx = pidx + 1
+
+        # initialize hemisphere info
+        if self.hemispheres:
+            self.calculate_hemispheres()
+
+    def calculate_hemispheres(self):
+
+        """ For each fiber assign a hemisphere using the first (R)
+        coordinates.
+        This part assumes we are in RAS so the first coordinate is
+        positive to the RIGHT and negative to the LEFT.  The fiber
+        must be more than 95% within 1 hemisphere.  This excludes
+        corpus but can retain errant cingulum. We also want to
+        identify likely commissural fibers.
+        """
+
+        # Figure out hemisphere of each line
+        self.fiber_hemisphere = numpy.zeros(self.number_of_fibers)
+        # percentage in left hemisphere
+        test = sum(self.fiber_array_r.T < 0) / float(self.points_per_fiber)
+        thresh = self.hemisphere_percent_threshold
+        self.fiber_hemisphere[numpy.nonzero(test > thresh)] = -1
+        self.fiber_hemisphere[numpy.nonzero(test < 1 - thresh)] = 1
+        # previous code left for clarity below, concrete example of threshold:
+        # self.fiber_hemisphere[numpy.nonzero(test > 0.95)] = -1
+        # self.fiber_hemisphere[numpy.nonzero(test < 0.05)] = 1
+        # otherwise hem stays 0 for commissural
+
+        # DeepWMAOutput boolean arrays for each hemisphere and callosal fibers
+        self.is_left_hem = (self.fiber_hemisphere == -1)
+        self.is_right_hem = (self.fiber_hemisphere == 1)
+        self.is_commissure = (self.fiber_hemisphere == 0)
+
+        # DeepWMAOutput indices of each type above
+        self.index_left_hem = numpy.nonzero(self.is_left_hem)[0]
+        self.index_right_hem = numpy.nonzero(self.is_right_hem)[0]
+        self.index_commissure = numpy.nonzero(self.is_commissure)[0]
+        self.index_hem = numpy.nonzero(self.is_left_hem | self.is_right_hem)[0]
+
+        # DeepWMAOutput totals of each type also
+        self.number_left_hem = len(self.index_left_hem)
+        self.number_right_hem = len(self.index_right_hem)
+        self.number_commissure = len(self.index_commissure)
+
+        # test
+        if __debug__:
+            test = self.number_of_fibers == \
+                   (self.number_left_hem + self.number_right_hem \
+                    + self.number_commissure)
+            if not test:
+                print
+                "<fibers.py> ERROR: fiber numbers don't add up."
+                raise AssertionError
+
+    def convert_to_polydata(self):
+        """Convert fiber array to vtkPolyData object."""
+
+        outpd = vtk.vtkPolyData()
+        outpoints = vtk.vtkPoints()
+        outlines = vtk.vtkCellArray()
+
+        outlines.InitTraversal()
+
+        for lidx in range(0, self.number_of_fibers):
+            cellptids = vtk.vtkIdList()
+
+            for pidx in range(0, self.points_per_fiber):
+                idx = outpoints.InsertNextPoint(self.fiber_array_r[lidx, pidx],
+                                                self.fiber_array_a[lidx, pidx],
+                                                self.fiber_array_s[lidx, pidx])
