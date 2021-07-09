@@ -38,4 +38,9 @@ class PointNetCls(nn.Module):
         self.dropout = nn.Dropout(p=0.3)
         self.bn1 = nn.BatchNorm1d(512)
         self.bn2 = nn.BatchNorm1d(256)
-        self.relu = nn.
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        x = self.feat(x)
+        x = F.relu(self.bn1(self.fc1(x)))
+        x = F.relu(self.bn2(self.dropout(self.fc2(
