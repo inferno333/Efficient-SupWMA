@@ -31,4 +31,7 @@ class PointNetCls(nn.Module):
     def __init__(self, k=2):
         super(PointNetCls, self).__init__()
         self.feat = PointNetfeat()
-        # 3 fully co
+        # 3 fully connected layers for classification
+        self.fc1 = nn.Linear(1024, 512)
+        self.fc2 = nn.Linear(512, 256)
+        self.fc3 = nn.L
