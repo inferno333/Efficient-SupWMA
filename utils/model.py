@@ -28,4 +28,7 @@ class PointNetfeat(nn.Module):
 
 
 class PointNetCls(nn.Module):
-  
+    def __init__(self, k=2):
+        super(PointNetCls, self).__init__()
+        self.feat = PointNetfeat()
+        # 3 fully co
