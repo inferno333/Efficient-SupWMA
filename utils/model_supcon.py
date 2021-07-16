@@ -7,4 +7,6 @@ import torch.utils.data
 import torch.nn.functional as F
 
 
-class 
+class PointNet_SupCon(nn.Module):
+    """PointNet Encoder+Linear layers. Trained with contrastive loss"""
+    def __init__(self, head='mlp', f
