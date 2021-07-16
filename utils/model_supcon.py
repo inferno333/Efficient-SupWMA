@@ -9,4 +9,9 @@ import torch.nn.functional as F
 
 class PointNet_SupCon(nn.Module):
     """PointNet Encoder+Linear layers. Trained with contrastive loss"""
-    def __init__(self, head='mlp', f
+    def __init__(self, head='mlp', feat_dim=128):
+        super(PointNet_SupCon, self).__init__()
+        # encoder
+        self.encoder = PointNetfeat()
+        # Contrastive learning
+    
