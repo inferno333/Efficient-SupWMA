@@ -26,4 +26,8 @@ class PointNet_SupCon(nn.Module):
             raise ValueError('Head not supported: {}. Please select from "mlp" or "linear"'.format(head))
 
     def forward(self, x):
-        global_feat
+        global_feat = self.encoder(x)
+        # contrastive feature
+        contra_feat = F.normalize(self.head(global_feat), dim=1)  # normalization is important
+
+   
