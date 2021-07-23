@@ -18,4 +18,9 @@ class PointNet_SupCon(nn.Module):
             self.head = nn.Linear(1024, feat_dim)
         elif head == 'mlp':
             self.head = nn.Sequential(
-                nn.Linear(
+                nn.Linear(1024, 1024),
+                nn.ReLU(inplace=True),
+                nn.Linear(1024, feat_dim)
+            )
+        else:
+            
