@@ -14,4 +14,8 @@ class PointNet_SupCon(nn.Module):
         # encoder
         self.encoder = PointNetfeat()
         # Contrastive learning
-    
+        if head == 'linear':
+            self.head = nn.Linear(1024, feat_dim)
+        elif head == 'mlp':
+            self.head = nn.Sequential(
+                nn.Linear(
