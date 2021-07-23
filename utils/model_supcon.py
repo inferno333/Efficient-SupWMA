@@ -23,4 +23,7 @@ class PointNet_SupCon(nn.Module):
                 nn.Linear(1024, feat_dim)
             )
         else:
-            
+            raise ValueError('Head not supported: {}. Please select from "mlp" or "linear"'.format(head))
+
+    def forward(self, x):
+        global_feat
