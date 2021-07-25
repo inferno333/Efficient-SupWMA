@@ -30,4 +30,10 @@ class PointNet_SupCon(nn.Module):
         # contrastive feature
         contra_feat = F.normalize(self.head(global_feat), dim=1)  # normalization is important
 
-   
+        return contra_feat
+
+
+class PointNetfeat(nn.Module):
+    def __init__(self):
+        super(PointNetfeat, self).__init__()
+    
