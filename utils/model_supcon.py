@@ -47,4 +47,11 @@ class PointNetfeat(nn.Module):
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x = self.bn3(self.conv3(x))
-        x = torch.max(x, 2, keepdim=Tru
+        x = torch.max(x, 2, keepdim=True)[0]
+        x = x.view(-1, 1024)
+
+        return x
+
+
+class PointNet_Classifier(nn.Module):
+    """The classifier layers in PointNet. Trained with CrossEnt
