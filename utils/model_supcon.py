@@ -54,4 +54,7 @@ class PointNetfeat(nn.Module):
 
 
 class PointNet_Classifier(nn.Module):
-    """The classifier layers in PointNet. Trained with CrossEnt
+    """The classifier layers in PointNet. Trained with CrossEntropy loss based on the fixed encoder"""
+    def __init__(self, num_classes=2):
+        super(PointNet_Classifier, self).__init__()
+        se
