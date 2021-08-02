@@ -66,4 +66,8 @@ class PointNet_Classifier(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, x):
-        x = F.relu(se
+        x = F.relu(self.bn1(self.fc1(x)))
+        x = F.relu(self.bn2(self.dropout(self.fc2(x))))
+        x = self.fc3(x)
+
+        return F.log_softmax(x, dim=1)
