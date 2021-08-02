@@ -57,4 +57,7 @@ class PointNet_Classifier(nn.Module):
     """The classifier layers in PointNet. Trained with CrossEntropy loss based on the fixed encoder"""
     def __init__(self, num_classes=2):
         super(PointNet_Classifier, self).__init__()
-        se
+        self.fc1 = nn.Linear(1024, 512)
+        self.fc2 = nn.Linear(512, 256)
+        self.fc3 = nn.Linear(256, num_classes)
+        self.dropout = nn.Dropout(p=0.3
