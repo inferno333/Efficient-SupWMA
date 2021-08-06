@@ -12,4 +12,11 @@ def feat_RAS(pd_tract, number_of_points=15):
     # fiber_array_r, fiber_array_a, fiber_array_s have the same size: [number of fibers, points of each fiber]
     feat = np.dstack((fiber_array.fiber_array_r, fiber_array.fiber_array_a, fiber_array.fiber_array_s))
 
-    ret
+    return feat
+
+
+def feat_curv_tors(pd_tract, number_of_points=15):
+    """The most simple feature for initial test"""
+
+    fiber_array = fibers.FiberArray()
+    f
