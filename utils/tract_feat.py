@@ -19,4 +19,6 @@ def feat_curv_tors(pd_tract, number_of_points=15):
     """The most simple feature for initial test"""
 
     fiber_array = fibers.FiberArray()
-    f
+    fiber_array.convert_from_polydata_with_trafic(pd_tract, points_per_fiber=number_of_points)
+
+    feat = np.dstack((fiber_array.fiber_array_cu
