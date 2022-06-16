@@ -38,4 +38,8 @@ def feat_RAS_curv_tors(pd_tract, number_of_points=15):
     return feat
 
 
-def feat_RAS_3D(pd_tract, number_of_points=15, repea
+def feat_RAS_3D(pd_tract, number_of_points=15, repeat_time=15):
+    """The most simple feature for initial test"""
+
+    feat = feat_RAS(pd_tract,
+                    number_of_points=number_of_points
