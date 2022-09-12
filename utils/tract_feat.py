@@ -45,3 +45,11 @@ def feat_RAS_3D(pd_tract, number_of_points=15, repeat_time=15):
                     number_of_points=number_of_points)  # size: [number of fibers, points on each fiber, RAS (three dimensions)]
 
     feat_1221_2112_repeat = _feat_to_3D(feat, repeat_time=repeat_time)
+
+    return feat_1221_2112_repeat
+
+
+def _feat_to_3D(feat, repeat_time=15):
+    # 1 first; 2 last
+    # 12 is the original point order
+    # 21 is the fliped poin
