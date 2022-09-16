@@ -52,4 +52,9 @@ def feat_RAS_3D(pd_tract, number_of_points=15, repeat_time=15):
 def _feat_to_3D(feat, repeat_time=15):
     # 1 first; 2 last
     # 12 is the original point order
-    # 21 is the fliped poin
+    # 21 is the fliped point order
+    feat_12 = feat
+    feat_21 = np.flip(feat_12, axis=1)
+
+    # concatenate the different orders
+    feat_1221 = np.concatenate((feat_12,
