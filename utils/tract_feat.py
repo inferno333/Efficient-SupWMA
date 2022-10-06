@@ -57,4 +57,8 @@ def _feat_to_3D(feat, repeat_time=15):
     feat_21 = np.flip(feat_12, axis=1)
 
     # concatenate the different orders
-    feat_1221 = np.concatenate((feat_12,
+    feat_1221 = np.concatenate((feat_12, feat_21), axis=1)
+    feat_2112 = np.concatenate((feat_21, feat_12), axis=1)
+
+    # reshape to a 4D array
+    feat_shape = (feat_1221.shape[0], 1, feat_
