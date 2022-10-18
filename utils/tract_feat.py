@@ -61,4 +61,9 @@ def _feat_to_3D(feat, repeat_time=15):
     feat_2112 = np.concatenate((feat_21, feat_12), axis=1)
 
     # reshape to a 4D array
-    feat_shape = (feat_1221.shape[0], 1, feat_
+    feat_shape = (feat_1221.shape[0], 1, feat_1221.shape[1], feat_1221.shape[2])
+
+    feat_1221 = np.reshape(feat_1221, feat_shape)
+    feat_2112 = np.reshape(feat_2112, feat_shape)
+
+    # Now th
