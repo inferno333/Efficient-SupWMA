@@ -83,4 +83,9 @@ def _feat_to_3D(feat, repeat_time=15):
     return feat_1221_2112_repeat
 
 
-def downsample(ds_s
+def downsample(ds_step, x_data, y_data=None):
+    x_data_ds = x_data[::ds_step, :, :, :]
+
+    y_data_ds = None
+    if y_data is not None:
+        y_data_ds = y_data[::d
