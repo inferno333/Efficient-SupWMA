@@ -72,4 +72,7 @@ def _feat_to_3D(feat, repeat_time=15):
 
     # Repeat the send D;
     # In the tmp variable, it is [1221; 1221; ...; 2112; 2112; ....],
-   
+    # but we want [1221; 2112; 1221; 2112; ....]
+    feat_1221_2112_repeat_tmp = np.repeat(feat_1221_2112, repeat_time, axis=1)
+
+    feat_1221_2112_repe
