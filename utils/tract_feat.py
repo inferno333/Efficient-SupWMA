@@ -75,4 +75,7 @@ def _feat_to_3D(feat, repeat_time=15):
     # but we want [1221; 2112; 1221; 2112; ....]
     feat_1221_2112_repeat_tmp = np.repeat(feat_1221_2112, repeat_time, axis=1)
 
-    feat_1221_2112_repe
+    feat_1221_2112_repeat = np.zeros(feat_1221_2112_repeat_tmp.shape)
+
+    feat_1221_2112_repeat[:, 0::2, :, :] = feat_1221_2112_repeat_tmp[:, 0:repeat_time, :, :]
+    feat
