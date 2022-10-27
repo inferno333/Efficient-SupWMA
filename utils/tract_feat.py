@@ -88,4 +88,6 @@ def downsample(ds_step, x_data, y_data=None):
 
     y_data_ds = None
     if y_data is not None:
-        y_data_ds = y_data[::d
+        y_data_ds = y_data[::ds_step]
+
+    return (x_data_ds, y_data_ds)
