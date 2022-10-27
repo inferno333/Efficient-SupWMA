@@ -68,4 +68,8 @@ def _feat_to_3D(feat, repeat_time=15):
 
     # Now the dimension is (# of fibers, 2, # of points, 3)
     # the second D is [1221; 2112]; the fourth D is RAS
-    feat_1221_2112 = np
+    feat_1221_2112 = np.concatenate((feat_1221, feat_2112), axis=1)
+
+    # Repeat the send D;
+    # In the tmp variable, it is [1221; 1221; ...; 2112; 2112; ....],
+   
