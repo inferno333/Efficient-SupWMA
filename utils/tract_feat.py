@@ -78,4 +78,9 @@ def _feat_to_3D(feat, repeat_time=15):
     feat_1221_2112_repeat = np.zeros(feat_1221_2112_repeat_tmp.shape)
 
     feat_1221_2112_repeat[:, 0::2, :, :] = feat_1221_2112_repeat_tmp[:, 0:repeat_time, :, :]
-    feat
+    feat_1221_2112_repeat[:, 1::2, :, :] = feat_1221_2112_repeat_tmp[:, repeat_time:, :, :]
+
+    return feat_1221_2112_repeat
+
+
+def downsample(ds_s
