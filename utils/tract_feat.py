@@ -66,4 +66,6 @@ def _feat_to_3D(feat, repeat_time=15):
     feat_1221 = np.reshape(feat_1221, feat_shape)
     feat_2112 = np.reshape(feat_2112, feat_shape)
 
-    # Now th
+    # Now the dimension is (# of fibers, 2, # of points, 3)
+    # the second D is [1221; 2112]; the fourth D is RAS
+    feat_1221_2112 = np
